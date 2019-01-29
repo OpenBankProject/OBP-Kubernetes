@@ -5,12 +5,12 @@ Otherwise, use a kubernetes provider (Google Cloud, OpenShift etc)
 
 See docs/kubernetes
 
-sudo microk8s.start
-sudo microk8s.status
-sudo microk8s.docker build -t localhost:32000/obpapi:latest
-sudo microk8s.docker push localhost:32000/obpapi:latest
-sudo microk8s.kubectl create deployment  obpapi --image=localhost:32000/obpapi:latest
-sudo microk8s.kubectl expose deployment obpapi --type=NodePort --port=8080
+    sudo microk8s.start
+    sudo microk8s.status
+    sudo microk8s.docker build -t localhost:32000/obpapi:latest
+    sudo microk8s.docker push localhost:32000/obpapi:latest
+    sudo microk8s.kubectl create deployment  obpapi --image=localhost:32000/obpapi:latest
+    sudo microk8s.kubectl expose deployment obpapi --type=NodePort --port=8080
 
 # Docker only Build
 
