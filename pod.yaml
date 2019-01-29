@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: obpapi
+  namespace: default
+spec:
+  containers:
+  - name: obpapi
+    image: localhost:32000/obpapi:latest
+    imagePullPolicy: Always
+  restartPolicy: Always
