@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: obpapi-service
+spec:
+    selector:
+        app: obpapi
+    ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: obp-deployment
+    labels:
+        app: obpapi
+spec:
+    replicas: 2
+    selector:
+        matchLabels:
+            app: obpapi
+    template:
+        metadata:
+            labels:
+                app: obpapi
+        spec:
+            containers:
+            - name: obpapi
+              image: chrisjsimpson/obp:1 # docker build -t obpapi:1 .
+              ports:
+              - containerPort: 8080
