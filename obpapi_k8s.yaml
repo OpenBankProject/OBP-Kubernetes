@@ -28,9 +28,21 @@ spec:
         spec:
             containers:
             - name: obpapi
-              image: chrisjsimpson/obp:1 # docker build -t obpapi:1 .
+              image: chrisjsimpson/obp:minimal # docker build -t obpapi:1 .
               ports:
               - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: postgres-service
+spec:
+    selector:
+        app: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
 ---
 apiVersion: apps/v1
 kind: Deployment
