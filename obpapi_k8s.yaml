@@ -31,3 +31,47 @@ spec:
               image: chrisjsimpson/obp:1 # docker build -t obpapi:1 .
               ports:
               - containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: obp-postgres
+    labels:
+        app: postgres
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: obp-postgres
+    template:
+        metadata:
+            labels:
+                app: obp-postgres
+        spec:
+            containers:
+            - name: postgres
+              image: postgres:11.1-alpine
+              volumeMounts:
+              - name: postgres
+                mountPath: "/var/lib/postgresql/data"
+              ports:
+              - containerPort: 5432
+            volumes:
+                - name: postgres
+                  persistentVolumeClaim:
+                    claimName: postgres
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata: 
+    name: postgres
+spec:
+    accessModes:
+        - ReadWriteOnce
+    volumeMode: Filesystem
+    resources:
+        requests:
+            storage: 5Gi
+    selector:
+       matchLabels: 
+            release: "stable"
