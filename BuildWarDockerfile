@@ -1,3 +1,8 @@
+##
+## Create a OBPAPI war file using multi stage builds
+#  See https://docs.docker.com/develop/develop-images/multistage-build/
+##
+
 FROM maven:3-jdk-8 as maven
 ENV LANG=C.UTF-8 LANGUAGE=C LC_ALL=C.UTF-8 TERM=linux
 
