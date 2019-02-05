@@ -1,4 +1,30 @@
 apiVersion: v1
+kind: Secret
+metadata:
+    name: postgres-credentials
+type: Opaque
+data:
+    postgres_user: cG9zdGdyZXM= #postgres
+    postgres_password: cGFzc3dvcmQ= #password
+    postgres_db_name: cG9zdGdyZXM= #postgres
+    postgres_host: cG9zdGdyZXMtc2VydmljZQ== #postgres-service
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata: 
+    name: postgres-volume-claim
+spec:
+    accessModes:
+        - ReadWriteOnce
+    volumeMode: Filesystem
+    resources:
+        requests:
+            storage: 5Gi
+    selector:
+       matchLabels: 
+            release: "stable"
+---
+apiVersion: v1
 kind: Service
 metadata:
     name: obpapi-service
@@ -6,9 +32,14 @@ spec:
     selector:
         app: obpapi
     ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 80
       targetPort: 8080
+    - name: postgres
+      protocol: TCP
+      port: 5432
+      targetPort: 5432
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -17,7 +48,7 @@ metadata:
     labels:
         app: obpapi
 spec:
-    replicas: 2
+    replicas: 1
     selector:
         matchLabels:
             app: obpapi
@@ -28,9 +59,33 @@ spec:
         spec:
             containers:
             - name: obpapi
-              image: chrisjsimpson/obp:minimal # docker build -t obpapi:1 .
+              image: chrisjsimpson/obpapi-kube # docker build -t obpapi:1 .
+              env:
+                - name: DB_USER
+                  valueFrom: 
+                    secretKeyRef: 
+                     name: postgres-credentials
+                     key: postgres_user
+                - name: DB_PASS
+                  valueFrom: 
+                    secretKeyRef: 
+                     name: postgres-credentials
+                     key: postgres_password
+                - name: DB_NAME
+                  valueFrom: 
+                    secretKeyRef: 
+                     name: postgres-credentials
+                     key: postgres_db_name
+                - name: DB_HOST
+                  valueFrom: 
+                    secretKeyRef: 
+                     name: postgres-credentials
+                     key: postgres_host
               ports:
               - containerPort: 8080
+                name: http
+              - containerPort: 5432
+                name: postgres
 ---
 apiVersion: v1
 kind: Service
@@ -47,43 +102,39 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: obp-postgres
+    name: postgres
     labels:
         app: postgres
 spec:
     replicas: 1
     selector:
         matchLabels:
-            app: obp-postgres
+            app: postgres
     template:
         metadata:
             labels:
-                app: obp-postgres
+                app: postgres
         spec:
             containers:
             - name: postgres
               image: postgres:11.1-alpine
+              env: 
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                     name: postgres-credentials
+                     key: postgres_user
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef: 
+                     name: postgres-credentials
+                     key: postgres_password
               volumeMounts:
-              - name: postgres
+              - name: postgres-volume
                 mountPath: "/var/lib/postgresql/data"
               ports:
               - containerPort: 5432
             volumes:
-                - name: postgres
+                - name: postgres-volume
                   persistentVolumeClaim:
-                    claimName: postgres
----
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata: 
-    name: postgres
-spec:
-    accessModes:
-        - ReadWriteOnce
-    volumeMode: Filesystem
-    resources:
-        requests:
-            storage: 5Gi
-    selector:
-       matchLabels: 
-            release: "stable"
+                    claimName: postgres-volume-claim
