@@ -31,4 +31,5 @@ else
     cd -
 fi
 
+#Call original jetty:jre8-alpine entrypoint so it does what it needs to do
 /docker-entrypoint.sh
