@@ -20,11 +20,7 @@ See docs/kubernetes
 
 # TODO
 
- - ConfigMap and Secrets management for connecting from obpapi-service <> postgres-service
- - Docker image & obpapi change to allow passing of postgress connection string via environment or file 
- - Minimal Docker containers for API Manager, API Explorer, API Tester to be also exposed as Services in
-   the same way as chrisjsimpson/obp:minimal
-
+ See https://github.com/chrisjsimpson/obp-kubernetes/projects
 
 
 ## Docker only Build
