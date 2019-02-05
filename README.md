@@ -29,11 +29,21 @@ See docs/kubernetes
 
 ## Docker only Build
 If you just want run Open Bank project locally on your machine quickly, you can use this docker image
+rather than pulling from docker hub (e.g. you're offline).
 
+See `BuildWarDockerfile` 
     # Build it
-    docker build --no-cache --tag obpapi .
+    docker build --no-cache --tag obpapi -f BuildWarDockerfile
     # Or pull and run it 
     docker run -p 8080:8080 chrisjsimpson/obp:minimal
+
+If you already have a war file, just inject it into the build:
+
+    ```
+    docker build --no-cache -t obpapi-kube .
+    docker run --env DB_USER=username --env DB_PASS=password --env DB_NAME=dbname --env DB_HOST=127.0.0.1 --network="host" -p8080:8080 obpapi-kube
+    ```
+
 
 ## Run 
 
