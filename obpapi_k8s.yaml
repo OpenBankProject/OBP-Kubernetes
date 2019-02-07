@@ -7,7 +7,8 @@ data:
     postgres_user: cG9zdGdyZXM= #postgres
     postgres_password: cGFzc3dvcmQ= #password
     postgres_db_name: cG9zdGdyZXM= #postgres
-    postgres_host: cG9zdGdyZXMtc2VydmljZQ== #postgres-service
+    jdbc_driver: b3JnLnBvc3RncmVzcWwuRHJpdmVy # org.postgresql.Driver
+    jdbc_url: amRiYzpwb3N0Z3Jlc3FsOi8vcG9zdGdyZXMtc2VydmljZTo1NDMyL3Bvc3RncmVzP3VzZXI9cG9zdGdyZXMmcGFzc3dvcmQ9cGFzc3dvcmQ= # jdbc:postgresql://postgres-service:5432/postgres?user=postgres&password=password
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -61,26 +62,16 @@ spec:
             - name: obpapi
               image: chrisjsimpson/obpapi-kube # docker build -t obpapi:1 .
               env:
-                - name: DB_USER
+                - name: DB_DRIVER
                   valueFrom: 
                     secretKeyRef: 
                      name: postgres-credentials
-                     key: postgres_user
-                - name: DB_PASS
+                     key: jdbc_driver
+                - name: DB_URL
                   valueFrom: 
                     secretKeyRef: 
                      name: postgres-credentials
-                     key: postgres_password
-                - name: DB_NAME
-                  valueFrom: 
-                    secretKeyRef: 
-                     name: postgres-credentials
-                     key: postgres_db_name
-                - name: DB_HOST
-                  valueFrom: 
-                    secretKeyRef: 
-                     name: postgres-credentials
-                     key: postgres_host
+                     key: jdbc_url
               ports:
               - containerPort: 8080
                 name: http
@@ -129,6 +120,11 @@ spec:
                     secretKeyRef: 
                      name: postgres-credentials
                      key: postgres_password
+                - name: POSTGRES_DB
+                  valueFrom:
+                    secretKeyRef: 
+                     name: postgres-credentials
+                     key: postgres_db_name
               volumeMounts:
               - name: postgres-volume
                 mountPath: "/var/lib/postgresql/data"
