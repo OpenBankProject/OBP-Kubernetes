@@ -60,7 +60,7 @@ spec:
         spec:
             containers:
             - name: obpapi
-              image: chrisjsimpson/obpapi-kube # docker build -t obpapi:1 .
+              image: chrisjsimpson/obpapi-kube # docker build -t obpapi-kube .
               env:
                 - name: DB_DRIVER
                   valueFrom: 
