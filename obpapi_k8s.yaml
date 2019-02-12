@@ -22,9 +22,6 @@ spec:
     resources:
         requests:
             storage: 5Gi
-    selector:
-       matchLabels: 
-            release: "stable"
 ---
 apiVersion: v1
 kind: Service
