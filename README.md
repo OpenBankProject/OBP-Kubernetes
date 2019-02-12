@@ -7,10 +7,11 @@ See docs/kubernetes
 
     # Start your local microk8s environment (you might prefer to use minikube)
     sudo microk8s.start
+    sudo microk8s.enable dns dashboard registry #Only needed once
     sudo microk8s.status
 
     # Deploy open bank project
-    sudo microk8s.kubectl create -f obp.yaml 
+    sudo microk8s.kubectl create -f obpapi_k8s.yaml
     # Output: 
     service/obpapi-service created
     deployment.apps/obp-deployment created
