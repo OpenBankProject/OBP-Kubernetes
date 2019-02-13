@@ -26,6 +26,27 @@ kubectl get pv
 kubectl patch pv <your-pv-name> -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
 ```
 
+### DNS Mapping hostname to cluster (Poor mans ingress)
+
+#### HTTP (Done) 
+The service `obpapi-service` type is [LoadBalancer](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer), which means an external load balancer is provisioned (depending on the 
+cloud provider being used). We get a public ipv4 address, and can use this to point a DNS A record to the
+ip.
+
+```
+# Find exernal ip
+kubectl get services
+# Copy 'external ip'
+```
+
+Traffic from the external load balancer will be directed at the backend Pods.
+HTTP: https://cloud.google.com/kubernetes-engine/docs/tutorials/http-balancer
+
+#### HTTPS (TODO)
+HTTPS requires different steps: https://cloud.google.com/load-balancing/docs/https/
+
+
+
 # TODO
 
  See https://github.com/chrisjsimpson/obp-kubernetes/projects
