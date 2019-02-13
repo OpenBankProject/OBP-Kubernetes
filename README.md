@@ -19,6 +19,13 @@ See docs/kubernetes
     deployment.apps/obp-postgres created
     persistentvolumeclaim/postgres created
 
+### Patching the reclaim policy to `Retain`
+https://kubernetes.io/docs/tasks/administer-cluster/change-pv-reclaim-policy/
+```
+kubectl get pv
+kubectl patch pv <your-pv-name> -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
+```
+
 # TODO
 
  See https://github.com/chrisjsimpson/obp-kubernetes/projects
