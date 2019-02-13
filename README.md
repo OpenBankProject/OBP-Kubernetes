@@ -26,6 +26,25 @@ kubectl get pv
 kubectl patch pv <your-pv-name> -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
 ```
 
+## Scale the OBPAPI deployment
+
+Currently only the `obp-deployment` can be scaled. The Postgres instance cannot until we implement 
+[Patroni](https://github.com/zalando/patroni), or use a managed service like RDS(AWS) or Cloud SQL 
+(Google)
+
+| WARNING: If your cluster is too small and/or autoscaling is disabled, your cluster is the limit! |
+| --- |
+
+Steps to scale to more obpapi instances:
+
+```
+kubectl scale deployment.v1.apps/obp-deployment --replicas=5
+# Monitor progress of scale up
+kubectl rollout status deployment.v1.apps/obp-deployment
+
+kubectl describe deployment obp-deployment
+```
+
 ### DNS Mapping hostname to cluster (Poor mans ingress)
 
 #### HTTP (Done) 
