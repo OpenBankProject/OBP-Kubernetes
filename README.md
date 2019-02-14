@@ -1,10 +1,10 @@
-# Kubernetes Build
+# Kubernetes Build (local development)
 
 For running locally, install https://microk8s.io/docs/.
 Otherwise, use a kubernetes provider (Google Cloud, OpenShift etc)
 
-See docs/kubernetes
 
+## 1. Start microk8s, enable addons, and deploy
     # Start your local microk8s environment (you might prefer to use minikube)
     sudo microk8s.start
     sudo microk8s.enable dns dashboard registry #Only needed once
@@ -19,12 +19,6 @@ See docs/kubernetes
     deployment.apps/obp-postgres created
     persistentvolumeclaim/postgres created
 
-### Patching the reclaim policy to `Retain`
-https://kubernetes.io/docs/tasks/administer-cluster/change-pv-reclaim-policy/
-```
-kubectl get pv
-kubectl patch pv <your-pv-name> -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
-```
 
 ## Scale the OBPAPI deployment
 
@@ -138,7 +132,14 @@ kubectl get pods
 kubectl logs -f <pod-name>
 ```
 
-## 4. Access the Dashboard
+## 4. Patching the reclaim policy to `Retain`
+https://kubernetes.io/docs/tasks/administer-cluster/change-pv-reclaim-policy/
+```
+kubectl get pv
+kubectl patch pv <your-pv-name> -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
+```
+
+## 5. Access the Dashboard
 
 If you like, you can view the pretty dashboard showing the deployment load, progess etc:
 ```
