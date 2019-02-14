@@ -74,6 +74,11 @@ Why use these? They're much cheaper, and if architected correctly failure of a n
 the system. Remember a borg master is replicated 5 times, and the kubernetes master is abstracted away (and 
 not charged for) on Google's Kubernetes so it's always available. 
 
+## 1. Create a cluster of nodes
+
+> The first time you do this, you will hit quota errors, such as max ip addresses per account. You must 
+  request a change to your quota to allow this.
+
 Change 'projectname' to your project name.
 
 ```
@@ -108,8 +113,34 @@ gcloud beta container \
     --min-memory 1 --max-memory 1 \
 ```
 
-## Access the Dashboard
+## 2. Connect to your cluser
 
+From your terminal, connect to your cluser. You can also do this through the Google
+'web console' interface if you prefer.
+
+```
+gcloud container clusters get-credentials <cluster-name> --zone europe-north1-a --project <project-name>
+```
+
+## 3. Deploy OBPAPI to Google Kubernetes
+
+Deploy the `obpapi_k8s.yaml` to your cluster. Kubernetes will read this and deploy the objects within
+the document.
+
+```
+kubectl apply -f obpapi_k8s.yaml
+```
+
+Useful commands to see progress:
+
+```
+kubectl get pods
+kubectl logs -f <pod-name>
+```
+
+## 4. Access the Dashboard
+
+If you like, you can view the pretty dashboard showing the deployment load, progess etc:
 ```
 kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
 ```
@@ -117,6 +148,9 @@ kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-adm
 kubectl proxy
 ```
 You can now view the dashboard at: http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace=default 
+
+
+<hr />
 
 # TODO
 
