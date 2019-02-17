@@ -12,7 +12,7 @@ echo "Create cluster"
 echo "Deploy onto cluster"
 ./deploy.sh
 
-echo "Wait 20 secconds for loadbalancer to assign public ip before we verify"
-sleep 20
+echo "Wait 60 secconds for loadbalancer to assign public ip before we verify"
+sleep 60
 echo "Verifying deployment"
 ./verify.sh
