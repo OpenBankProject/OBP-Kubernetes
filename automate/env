@@ -1,0 +1,4 @@
+PROJECT_NAME=testobpkubernetes
+CLUSTER_NAME=standard-cluster-1
+REGION=us-central1  #see https://cloud.google.com/compute/docs/regions-zones/
+ZONE=us-central1-a
