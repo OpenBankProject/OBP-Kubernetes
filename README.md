@@ -6,9 +6,9 @@ Otherwise, use a kubernetes provider (Google Cloud, OpenShift etc)
 
 ## 1. Start microk8s, enable addons, and deploy
     # Start your local microk8s environment (you might prefer to use minikube)
-    sudo microk8s.start
-    sudo microk8s.enable dns dashboard registry #Only needed once
-    sudo microk8s.status
+    microk8s.start
+    microk8s.enable dns dashboard registry #Only needed once
+    microk8s.status
 
     # Deploy open bank project
     sudo microk8s.kubectl create -f obpapi_k8s.yaml
@@ -152,6 +152,24 @@ You can now view the dashboard at: http://localhost:8001/api/v1/namespaces/kube-
 
 
 <hr />
+
+# SSL Termination
+How do we route http traffic to obp?
+
+We use [cert manager](https://docs.cert-manager.io/en/latest/getting-started/install.html).
+
+```
+# GKE (Google Kubernetes Engine) only
+kubectl create clusterrolebinding cluster-admin-binding \
+  --clusterrole=cluster-admin \
+  --user=$(gcloud config get-value core/account)
+# Create a namespace to run cert-manager in
+kubectl create namespace cert-manager
+# Disable resource validation on the cert-manager namespace
+kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
+# Install the CustomResourceDefinition resources
+kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/00-crds.yaml
+```
 
 # TODO
 
