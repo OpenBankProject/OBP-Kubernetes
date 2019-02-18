@@ -1,0 +1,150 @@
+kind: "Template"
+apiVersion: v1
+metadata:
+  name: "obp-api-example"
+objects:
+    - kind: Secret
+      apiVersion: v1
+      metadata:
+          name: postgres-credentials
+      type: Opaque
+      data:
+          postgres_user: b2JwdXNlcg== #obpuser
+          postgres_password: b2JwcGFzc3dvcmQ= #obppassword
+          postgres_db_name: b2JwdXNlcg== #obpuser
+          postgres_data: L3Zhci9saWIvcG9zdGdyZXNxbC9kYXRhL3BnZGF0YQ== # /var/lib/postgresql/data/pgdata
+          jdbc_driver: b3JnLnBvc3RncmVzcWwuRHJpdmVy # org.postgresql.Driver
+          jdbc_url: amRiYzpwb3N0Z3Jlc3FsOi8vcG9zdGdyZXMtc2VydmljZTo1NDMyL29icHVzZXI/dXNlcj1vYnB1c2VyJnBhc3N3b3JkPW9icHBhc3N3b3Jk # jdbc:postgresql://postgres-service:5432/obpuser?user=obpuser&password=obppassword
+    - kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata: 
+           name: postgres-volume-claim
+      spec:
+         accessModes:
+           - ReadWriteOnce
+         volumeMode: Filesystem
+         resources:
+          requests:
+            storage: 5Gi
+    - kind: Service
+      apiVersion: v1
+      metadata:
+          name: obpapi-service
+      spec:
+          selector:
+              app: obpapi
+          ports:
+          - name: http
+            protocol: TCP
+            port: 80
+            targetPort: 8080
+          - name: postgres
+            protocol: TCP
+            port: 5432
+            targetPort: 5432
+          type: LoadBalancer
+    - kind: Deployment
+      apiVersion: apps/v1
+      metadata:
+         name: obp-deployment
+         labels:
+             app: obpapi
+      spec:
+          replicas: 1
+          selector:
+              matchLabels:
+                  app: obpapi
+          template:
+              metadata:
+                  labels:
+                      app: obpapi
+              spec:
+                  containers:
+                  - name: obpapi
+                    image: chrisjsimpson/obpapi-kube # docker build -t obpapi-kube .
+                    resources:
+                      limits:
+                        memory: "800Mi"
+                      requests:
+                        memory: "600Mi"
+                    env:
+                      - name: DB_DRIVER
+                        valueFrom: 
+                          secretKeyRef: 
+                           name: postgres-credentials
+                           key: jdbc_driver
+                      - name: DB_URL
+                        valueFrom: 
+                          secretKeyRef: 
+                           name: postgres-credentials
+                           key: jdbc_url
+                    ports:
+                    - containerPort: 8080
+                      name: http
+                    - containerPort: 5432
+                      name: postgres
+    - kind: Service
+      apiVersion: v1
+      metadata:
+          name: postgres-service
+      spec:
+          selector:
+              app: postgres
+          ports:
+          - protocol: TCP
+            port: 5432
+            targetPort: 5432
+    - kind: Deployment
+      apiVersion: apps/v1
+      metadata:
+          name: postgres
+          labels:
+              app: postgres
+      spec:
+          replicas: 1
+          selector:
+              matchLabels:
+                  app: postgres
+          template:
+              metadata:
+                  labels:
+                      app: postgres
+              spec:
+                  containers:
+                  - name: postgres
+                    image: centos/postgresql-10-centos7
+                    resources:
+                      limits:
+                          memory: "512Mi"
+                      requests:
+                          memory: "200Mi"
+                    env: 
+                      - name: POSTGRESQL_USER
+                        valueFrom:
+                          secretKeyRef:
+                           name: postgres-credentials
+                           key: postgres_user
+                      - name: POSTGRESQL_PASSWORD
+                        valueFrom:
+                          secretKeyRef: 
+                           name: postgres-credentials
+                           key: postgres_password
+                      - name: POSTGRESQL_DATABASE
+                        valueFrom:
+                          secretKeyRef: 
+                           name: postgres-credentials
+                           key: postgres_db_name
+                      - name: PGDATA
+                        valueFrom:
+                          secretKeyRef: 
+                           name: postgres-credentials
+                           key: postgres_data
+                    volumeMounts:
+                    - name: postgres-volume
+                      mountPath: "/var/lib/postgresql/data"
+                    ports:
+                    - containerPort: 5432
+                  volumes:
+                      - name: postgres-volume
+                        persistentVolumeClaim:
+                          claimName: postgres-volume-claim
