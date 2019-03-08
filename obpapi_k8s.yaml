@@ -61,10 +61,8 @@ spec:
             - name: obpapi
               image: chrisjsimpson/obpapi-kube # docker build -t obpapi-kube .
               resources:
-                limits:
-                  memory: "800Mi"
                 requests:
-                  memory: "600Mi"
+                  memory: "126Mi"
               env:
                 - name: DB_DRIVER
                   valueFrom: 
@@ -114,8 +112,6 @@ spec:
             - name: postgres
               image: postgres:11.1-alpine
               resources:
-                limits:
-                    memory: "512Mi"
                 requests:
                     memory: "200Mi"
               env: 
