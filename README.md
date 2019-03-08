@@ -204,3 +204,13 @@ If you already have a war file, just inject it into the build:
 
 - https://docs.docker.com/develop/develop-images/multistage-build/ 
 - https://www.eclipse.org/jetty/documentation/9.4.x/maven-and-jetty.html
+
+
+## Minikube notes
+To view OBP interface locally, you must use the command:
+`minikube service obpapi-service` which will map ports and open a web browser 
+pointing to the obp service.
+
+Additionally, you may need to change the `obpapi-service` type to from 
+`LoadBalancer` to `NodePort`, since on your local machine you may not have a 
+default loadbalancer defined on your kubernetes instance
