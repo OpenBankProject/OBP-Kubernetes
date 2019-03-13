@@ -4,20 +4,47 @@ For running locally, install https://microk8s.io/docs/.
 Otherwise, use a kubernetes provider (Google Cloud, OpenShift etc)
 
 
-## 1. Start microk8s, enable addons, and deploy
+## 1. Start microk8s, enable addons, and deploy 
+
     # Start your local microk8s environment (you might prefer to use minikube)
     microk8s.start
     microk8s.enable dns dashboard registry #Only needed once
     microk8s.status
 
+#### Without kafka
+
     # Deploy open bank project
-    sudo microk8s.kubectl create -f obpapi_k8s.yaml
+    kubectl apply -f obpapi_k8s.yaml
     # Output: 
     service/obpapi-service created
     deployment.apps/obp-deployment created
     service/postgres-service created
     deployment.apps/obp-postgres created
     persistentvolumeclaim/postgres created
+
+#### With kafka
+
+    # Zookeeper
+    kubectl apply -f zookeeper-no-anti-afinity-no-fault-tolerance.yaml
+    # Kafka 
+    kubectl apply -f kafka-no-anti-affinity.yaml
+    # Open bank project
+    kubectl apply -f obpapi_k8s_with_kafka.yaml
+    # Output:
+    service/zk-svc created
+    configmap/zk-cm created
+    statefulset.apps/zk created
+    service/kafka-svc created
+    poddisruptionbudget.policy/kafka-pdb created
+    statefulset.apps/kafka created
+    secret/postgres-credentials created
+    secret/obp-credentials configured
+    persistentvolumeclaim/postgres-volume-claim created
+    service/obpapi-service created
+    deployment.apps/obp-deployment created
+    service/postgres-service created
+    deployment.apps/postgres created
+
 
 
 ## Scale the OBPAPI deployment
