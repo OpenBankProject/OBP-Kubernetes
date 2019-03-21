@@ -61,7 +61,7 @@ objects:
               spec:
                   containers:
                   - name: obpapi
-                    image: chrisjsimpson/obpapi-kube # docker build -t obpapi-kube .
+                    image: chrisjsimpson/1-openshift # docker build -t obpapi-kube .
                     resources:
                       limits:
                         memory: "800Mi"
