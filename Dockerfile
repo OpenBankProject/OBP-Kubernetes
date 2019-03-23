@@ -28,7 +28,7 @@ RUN tar xvf jetty-distribution-9.4.15.v20190215.tar.gz
 
 # Copy OBP source code
 # Copy build artifact (.war file) into jetty from 'maven' stage.
-COPY --from=maven /usr/src/OBP-API/obp-api/target/obp-api-1.0.war jetty-distribution-9.4.15.v20190215/webapps/
+COPY --from=maven /usr/src/OBP-API/obp-api/target/obp-api-1.0.war jetty-distribution-9.4.15.v20190215/webapps/ROOT.war
 
 WORKDIR jetty-distribution-9.4.15.v20190215/
 
