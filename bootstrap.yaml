@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: bootstrap
+  labels:
+    app: bootstrap
+    runtime: python37
+spec:
+  containers:
+  - name: bootstrap-container
+    image: chrisjsimpson/obp-bootstrap
+    env:
+    - name: OBP_HOST
+      value: http://obpapi-service
+    - name: OBP_PASSWORD
+      value: Treedom#112
+    - name: OBP_USERNAME
+      value: fred
+    - name: OBP_EMAIL
+      value: chris@example.com
+    - name: OBP_FIRSTNAME
+      value: fred
+    - name: OBP_LASTNAME
+      value: smith
+    - name: MOZ_HEADLESS
+      value: "1"
+    command: ['top', '-b']
