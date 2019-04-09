@@ -12,11 +12,3 @@ Open Bank Project on Kubernetes
 
    quickstart
 
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
