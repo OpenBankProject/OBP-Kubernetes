@@ -36,36 +36,48 @@
 <span id="docker-deploy-tutorial"></span><h1>Docker only Build<a class="headerlink" href="#docker-only-build" title="Permalink to this headline">¶</a></h1>
 <p>If you just want run Open Bank project locally on your machine quickly, you can use this docker image
 rather than pulling from docker hub (e.g. you’re offline).</p>
-<dl class="docutils">
-<dt>See <cite>BuildWarDockerfile</cite></dt>
-<dd># Build it
-docker build –no-cache –tag obpapi -f BuildWarDockerfile
-# Or pull and run it
-docker run -p 8080:8080 chrisjsimpson/obp:minimal</dd>
-</dl>
+<p>See <cite>BuildWarDockerfile</cite></p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1"># Build it</span>
+docker build --no-cache --tag obpapi -f BuildWarDockerfile
+<span class="c1"># Or pull and run it</span>
+docker run -p <span class="m">8080</span>:8080 chrisjsimpson/obp:minimal
+</pre></div>
+</td></tr></table></div>
 <p>If you already have a war file, just inject it into the build:</p>
-<blockquote>
-<div><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">docker</span> <span class="pre">build</span> <span class="pre">--no-cache</span> <span class="pre">-t</span> <span class="pre">obpapi-kube</span> <span class="pre">.</span>
-<span class="pre">docker</span> <span class="pre">run</span> <span class="pre">--env</span> <span class="pre">DB_USER=username</span> <span class="pre">--env</span> <span class="pre">DB_PASS=password</span> <span class="pre">--env</span> <span class="pre">DB_NAME=dbname</span> <span class="pre">--env</span> <span class="pre">DB_HOST=127.0.0.1</span> <span class="pre">--network=&quot;host&quot;</span> <span class="pre">-p8080:8080</span> <span class="pre">obpapi-kube</span>
-<span class="pre">`</span></code></div></blockquote>
-<p>## Run</p>
-<blockquote>
-<div><p>docker run -p 8080:8080 obpapi</p>
-<p>Visit <a class="reference external" href="http://127.0.0.1:8080/">http://127.0.0.1:8080/</a></p>
-</div></blockquote>
-<p>## See also</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span>docker build --no-cache -t obpapi-kube .
+docker run --env <span class="nv">DB_USER</span><span class="o">=</span>username --env <span class="nv">DB_PASS</span><span class="o">=</span>password --env <span class="nv">DB_NAME</span><span class="o">=</span>dbname --env <span class="nv">DB_HOST</span><span class="o">=</span><span class="m">127</span>.0.0.1 --network<span class="o">=</span><span class="s2">&quot;host&quot;</span> -p8080:8080 obpapi-kube
+</pre></div>
+</td></tr></table></div>
+<div class="section" id="run">
+<h2>Run<a class="headerlink" href="#run" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre><span></span>docker run -p <span class="m">8080</span>:8080 obpapi
+
+Visit http://127.0.0.1:8080/
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><a class="reference external" href="https://docs.docker.com/develop/develop-images/multistage-build/">https://docs.docker.com/develop/develop-images/multistage-build/</a></li>
 <li><a class="reference external" href="https://www.eclipse.org/jetty/documentation/9.4.x/maven-and-jetty.html">https://www.eclipse.org/jetty/documentation/9.4.x/maven-and-jetty.html</a></li>
 </ul>
-<p>## Minikube notes
-To view OBP interface locally, you must use the command:
+</div>
+<div class="section" id="minikube-notes">
+<h2>Minikube notes<a class="headerlink" href="#minikube-notes" title="Permalink to this headline">¶</a></h2>
+<p>To view OBP interface locally, you must use the command:
 <cite>minikube service obpapi-service</cite> which will map ports and open a web browser
 pointing to the obp service.</p>
 <p>Additionally, you may need to change the <cite>obpapi-service</cite> type to from
 <cite>LoadBalancer</cite> to <cite>NodePort</cite>, since on your local machine you may not have a
 default loadbalancer defined on your kubernetes instance</p>
+</div>
 </div>
 
 
@@ -87,7 +99,7 @@ default loadbalancer defined on your kubernetes instance</p>
 <h3>Navigation</h3>
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Kubernetes Local Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
 </ul>
 
 <div class="relations">

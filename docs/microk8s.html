@@ -33,34 +33,51 @@
           <div class="body" role="main">
             
   <div class="section" id="using-microk8s-with-open-bank-project">
-<span id="microk8s-deploy-tutorial"></span><h1>Using microk8s with Open Bank Project<a class="headerlink" href="#using-microk8s-with-open-bank-project" title="Permalink to this headline">¶</a></h1>
+<span id="microk8s-cloud-deploy-tutorial"></span><h1>Using microk8s with Open Bank Project<a class="headerlink" href="#using-microk8s-with-open-bank-project" title="Permalink to this headline">¶</a></h1>
 <p>For running locally, install <a class="reference external" href="https://microk8s.io/docs/">https://microk8s.io/docs/</a>.</p>
 <div class="section" id="start-microk8s-enable-addons-and-deploy">
 <h2>1. Start microk8s, enable addons, and deploy<a class="headerlink" href="#start-microk8s-enable-addons-and-deploy" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div># Start your local microk8s environment (you might prefer to use minikube)
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1"># Start your local microk8s environment (you might prefer to use minikube)</span>
 microk8s.start
-microk8s.enable dns dashboard registry #Only needed once
-microk8s.status</div></blockquote>
+microk8s.enable dns dashboard registry <span class="c1">#Only needed once</span>
+microk8s.status
+</pre></div>
+</td></tr></table></div>
 </div>
 <div class="section" id="deploy-the-manifests">
 <h2>2. Deploy the manifests<a class="headerlink" href="#deploy-the-manifests" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div># Deploy open bank project
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1"># Deploy open bank project</span>
 kubectl apply -f obpapi_k8s.yaml
-# Output:
+<span class="c1"># Output:</span>
 service/obpapi-service created
 deployment.apps/obp-deployment created
 service/postgres-service created
 deployment.apps/obp-postgres created
-persistentvolumeclaim/postgres created</div></blockquote>
-<p>## Minikube notes
-To view OBP interface locally, you must use the command:
+persistentvolumeclaim/postgres created
+</pre></div>
+</td></tr></table></div>
+<div class="section" id="minikube-notes">
+<h3>Minikube notes<a class="headerlink" href="#minikube-notes" title="Permalink to this headline">¶</a></h3>
+<p>To view OBP interface locally, you must use the command:
 <cite>minikube service obpapi-service</cite> which will map ports and open a web browser
 pointing to the obp service.</p>
-<p>Additionally, you may need to change the <cite>obpapi-service</cite> type to from
+<p>Additionally, you may need to change the <cite>obpapi-service</cite> type from
 <cite>LoadBalancer</cite> to <cite>NodePort</cite>, since on your local machine you may not have a
-default loadbalancer defined on your kubernetes instance</p>
+default loadbalancer defined on your kubernetes instance. To do this,
+you can do <cite>kubectl edit service obpapi-service</cite> and edit the associated
+<cite>LoadBalancer</cite> to <cite>NodePort</cite> and remove the assigned port. Or, simply delete
+the deployment and start fresh with <cite>NodePort</cite> in the manifest.</p>
+</div>
 </div>
 </div>
 
@@ -83,7 +100,7 @@ default loadbalancer defined on your kubernetes instance</p>
 <h3>Navigation</h3>
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Kubernetes Local Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
 </ul>
 
 <div class="relations">

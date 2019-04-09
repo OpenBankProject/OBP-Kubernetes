@@ -7,6 +7,10 @@ If you just want run Open Bank project locally on your machine quickly, you can 
 rather than pulling from docker hub (e.g. you're offline).
 
 See `BuildWarDockerfile` 
+
+.. code-block:: shell
+    :linenos:
+
     # Build it
     docker build --no-cache --tag obpapi -f BuildWarDockerfile
     # Or pull and run it 
@@ -14,25 +18,32 @@ See `BuildWarDockerfile`
 
 If you already have a war file, just inject it into the build:
 
-    ```
+.. code-block:: shell
+    :linenos:
+
     docker build --no-cache -t obpapi-kube .
     docker run --env DB_USER=username --env DB_PASS=password --env DB_NAME=dbname --env DB_HOST=127.0.0.1 --network="host" -p8080:8080 obpapi-kube
-    ```
 
 
-## Run 
+Run
+#####
+
+.. code-block:: shell
+    :linenos:
 
     docker run -p 8080:8080 obpapi
 
     Visit http://127.0.0.1:8080/
 
-## See also
+See also
+#########
 
 - https://docs.docker.com/develop/develop-images/multistage-build/ 
 - https://www.eclipse.org/jetty/documentation/9.4.x/maven-and-jetty.html
 
 
-## Minikube notes
+Minikube notes
+##############
 To view OBP interface locally, you must use the command:
 `minikube service obpapi-service` which will map ports and open a web browser 
 pointing to the obp service.
