@@ -1,0 +1,180 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Deploy Open Bank Project With Kafka &#8212; Open Bank Project K8s  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="deploy-open-bank-project-with-kafka">
+<span id="kafka-deploy-tutorial"></span><h1>Deploy Open Bank Project With Kafka<a class="headerlink" href="#deploy-open-bank-project-with-kafka" title="Permalink to this headline">¶</a></h1>
+<p>Start with a fresh kubernetes environment.</p>
+<p>### Deploy the kafka manifests</p>
+<blockquote>
+<div># Zookeeper
+kubectl apply -f zookeeper-no-anti-afinity-no-fault-tolerance.yaml
+# Kafka
+kubectl apply -f kafka-no-anti-affinity.yaml
+# Open bank project
+kubectl apply -f obpapi_k8s_with_kafka.yaml
+# Output:
+service/zk-svc created
+configmap/zk-cm created
+statefulset.apps/zk created
+service/kafka-svc created
+poddisruptionbudget.policy/kafka-pdb created
+statefulset.apps/kafka created
+secret/postgres-credentials created
+secret/obp-credentials configured
+persistentvolumeclaim/postgres-volume-claim created
+service/obpapi-service created
+deployment.apps/obp-deployment created
+service/postgres-service created
+deployment.apps/postgres created</div></blockquote>
+<p># Google Cloud Example</p>
+<p>The following creates a three node cluster on Google Cloud with autoscaling enabled. <strong>Warning</strong> it
+enabled preemptible nodes, which mean they could get shutdown at anytime, and <em>always</em> within 24 hours.
+Why use these? They’re much cheaper, and if architected correctly failure of a node should not impact
+the system. Remember a borg master is replicated 5 times, and the kubernetes master is abstracted away (and
+not charged for) on Google’s Kubernetes so it’s always available.</p>
+<p>## 1. Create a cluster of nodes</p>
+<dl class="docutils">
+<dt>&gt; The first time you do this, you will hit quota errors, such as max ip addresses per account. You must</dt>
+<dd>request a change to your quota to allow this.</dd>
+</dl>
+<p>Change ‘projectname’ to your project name.</p>
+<p><a href="#id1"><span class="problematic" id="id2">``</span></a>`
+gcloud beta container </p>
+<blockquote>
+<div>–project “&lt;projectname&gt;” clusters create “standard-cluster-1” –zone “europe-north1-a” –username “admin” –cluster-version “1.11.6-gke.2” –machine-type “f1-micro” –image-type “COS” –disk-type “pd-standard” –disk-size “30” –metadata disable-legacy-endpoints=true –scopes “<a class="reference external" href="https://www.googleapis.com/auth/devstorage.read_only">https://www.googleapis.com/auth/devstorage.read_only</a>”,”<a class="reference external" href="https://www.googleapis.com/auth/logging.write">https://www.googleapis.com/auth/logging.write</a>”,”<a class="reference external" href="https://www.googleapis.com/auth/monitoring">https://www.googleapis.com/auth/monitoring</a>”,”<a class="reference external" href="https://www.googleapis.com/auth/servicecontrol">https://www.googleapis.com/auth/servicecontrol</a>”,”<a class="reference external" href="https://www.googleapis.com/auth/service.management.readonly">https://www.googleapis.com/auth/service.management.readonly</a>”,”<a class="reference external" href="https://www.googleapis.com/auth/trace.append">https://www.googleapis.com/auth/trace.append</a>” –preemptible –num-nodes “3” –enable-cloud-logging –enable-cloud-monitoring –enable-ip-alias –network “projects/&lt;projectname&gt;/global/networks/default” –subnetwork “projects/projectname/regions/europe-north1/subnetworks/default” –default-max-pods-per-node “110” –enable-autoscaling –min-nodes “3” –max-nodes “10” –addons HorizontalPodAutoscaling,HttpLoadBalancing,KubernetesDashboard –enable-autoupgrade –enable-autorepair –enable-autoprovisioning –min-cpu 1 –max-cpu 1 –min-memory 1 –max-memory 1 </div></blockquote>
+<p><a href="#id3"><span class="problematic" id="id4">``</span></a><a href="#id5"><span class="problematic" id="id6">`</span></a></p>
+<p>## 2. Connect to your cluser</p>
+<p>From your terminal, connect to your cluser. You can also do this through the Google
+‘web console’ interface if you prefer.</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">gcloud</span> <span class="pre">container</span> <span class="pre">clusters</span> <span class="pre">get-credentials</span> <span class="pre">&lt;cluster-name&gt;</span> <span class="pre">--zone</span> <span class="pre">europe-north1-a</span> <span class="pre">--project</span> <span class="pre">&lt;project-name&gt;</span>
+<span class="pre">`</span></code></p>
+<p>## 3. Deploy OBPAPI to Google Kubernetes</p>
+<p>Deploy the <cite>obpapi_k8s.yaml</cite> to your cluster. Kubernetes will read this and deploy the objects within
+the document.</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">kubectl</span> <span class="pre">apply</span> <span class="pre">-f</span> <span class="pre">obpapi_k8s.yaml</span>
+<span class="pre">`</span></code></p>
+<p>Useful commands to see progress:</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">kubectl</span> <span class="pre">get</span> <span class="pre">pods</span>
+<span class="pre">kubectl</span> <span class="pre">logs</span> <span class="pre">-f</span> <span class="pre">&lt;pod-name&gt;</span>
+<span class="pre">`</span></code></p>
+<p>## 4. Patching the reclaim policy to <cite>Retain</cite>
+<a class="reference external" href="https://kubernetes.io/docs/tasks/administer-cluster/change-pv-reclaim-policy/">https://kubernetes.io/docs/tasks/administer-cluster/change-pv-reclaim-policy/</a>
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">kubectl</span> <span class="pre">get</span> <span class="pre">pv</span>
+<span class="pre">kubectl</span> <span class="pre">patch</span> <span class="pre">pv</span> <span class="pre">&lt;your-pv-name&gt;</span> <span class="pre">-p</span> <span class="pre">'{&quot;spec&quot;:{&quot;persistentVolumeReclaimPolicy&quot;:&quot;Retain&quot;}}'</span>
+<span class="pre">`</span></code></p>
+<p>## 5. Access the Dashboard</p>
+<p>If you like, you can view the pretty dashboard showing the deployment load, progess etc:
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">kubectl</span> <span class="pre">create</span> <span class="pre">clusterrolebinding</span> <span class="pre">kubernetes-dashboard</span> <span class="pre">--clusterrole=cluster-admin</span> <span class="pre">--serviceaccount=kube-system:kubernetes-dashboard</span>
+<span class="pre">`</span></code>
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">kubectl</span> <span class="pre">proxy</span>
+<span class="pre">`</span></code>
+You can now view the dashboard at: <a class="reference external" href="http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview">http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview</a>?namespace=default</p>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Open Bank Project K8s</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Kubernetes Local Environment</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Open Bank Project.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/with-kafka.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
