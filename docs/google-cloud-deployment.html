@@ -1,0 +1,223 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Deploy Open Bank Project on Google Cloud &#8212; Open Bank Project K8s  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="deploy-open-bank-project-on-google-cloud">
+<span id="google-cloud-deploy-tutorial"></span><h1>Deploy Open Bank Project on Google Cloud<a class="headerlink" href="#deploy-open-bank-project-on-google-cloud" title="Permalink to this headline">¶</a></h1>
+<p>The following creates a three node cluster on Google Cloud with autoscaling enabled. <strong>Warning</strong> it
+enabled preemptible nodes, which mean they could get shutdown at anytime, and <em>always</em> within 24 hours.
+Why use these? They’re much cheaper, and if architected correctly failure of a node should not impact
+the system. Remember a borg master is replicated 5 times, and the kubernetes master is abstracted away (and
+not charged for) on Google’s Kubernetes so it’s always available.</p>
+<div class="section" id="create-a-cluster-of-nodes">
+<h2>1. Create a cluster of nodes<a class="headerlink" href="#create-a-cluster-of-nodes" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>&gt; The first time you do this, you will hit quota errors, such as max ip addresses per account. You must</dt>
+<dd>request a change to your quota to allow this.</dd>
+</dl>
+<p>Change ‘projectname’ to your project name.</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29</pre></div></td><td class="code"><div class="highlight"><pre><span></span>gcloud beta container <span class="se">\</span>
+    --project <span class="s2">&quot;&lt;projectname&gt;&quot;</span> <span class="se">\</span>
+    clusters create <span class="s2">&quot;standard-cluster-1&quot;</span> <span class="se">\</span>
+    --zone <span class="s2">&quot;europe-north1-a&quot;</span> <span class="se">\</span>
+    --username <span class="s2">&quot;admin&quot;</span> <span class="se">\</span>
+    --cluster-version <span class="s2">&quot;1.11.6-gke.2&quot;</span> <span class="se">\</span>
+    --machine-type <span class="s2">&quot;f1-micro&quot;</span> <span class="se">\</span>
+    --image-type <span class="s2">&quot;COS&quot;</span> <span class="se">\</span>
+    --disk-type <span class="s2">&quot;pd-standard&quot;</span> <span class="se">\</span>
+    --disk-size <span class="s2">&quot;30&quot;</span> <span class="se">\</span>
+    --metadata disable-legacy-endpoints<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+    --scopes <span class="s2">&quot;https://www.googleapis.com/auth/devstorage.read_only&quot;</span>,<span class="s2">&quot;https://www.googleapis.com/auth/logging.write&quot;</span>,<span class="s2">&quot;https://www.googleapis.com/auth/monitoring&quot;</span>,<span class="s2">&quot;https://www.googleapis.com/auth/servicecontrol&quot;</span>,<span class="s2">&quot;https://www.googleapis.com/auth/service.management.readonly&quot;</span>,<span class="s2">&quot;https://www.googleapis.com/auth/trace.append&quot;</span> <span class="se">\</span>
+    --preemptible <span class="se">\</span>
+    --num-nodes <span class="s2">&quot;3&quot;</span> <span class="se">\</span>
+    --enable-cloud-logging <span class="se">\</span>
+    --enable-cloud-monitoring <span class="se">\</span>
+    --enable-ip-alias <span class="se">\</span>
+    --network <span class="s2">&quot;projects/&lt;projectname&gt;/global/networks/default&quot;</span> <span class="se">\</span>
+    --subnetwork <span class="s2">&quot;projects/projectname/regions/europe-north1/subnetworks/default&quot;</span> <span class="se">\</span>
+    --default-max-pods-per-node <span class="s2">&quot;110&quot;</span> <span class="se">\</span>
+    --enable-autoscaling <span class="se">\</span>
+    --min-nodes <span class="s2">&quot;3&quot;</span> <span class="se">\</span>
+    --max-nodes <span class="s2">&quot;10&quot;</span> <span class="se">\</span>
+    --addons HorizontalPodAutoscaling,HttpLoadBalancing,KubernetesDashboard <span class="se">\</span>
+    --enable-autoupgrade <span class="se">\</span>
+    --enable-autorepair <span class="se">\</span>
+    --enable-autoprovisioning <span class="se">\</span>
+    --min-cpu <span class="m">1</span> --max-cpu <span class="m">1</span> <span class="se">\</span>
+    --min-memory <span class="m">1</span> --max-memory <span class="m">1</span> <span class="se">\</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="connect-to-your-cluser">
+<h2>2. Connect to your cluser<a class="headerlink" href="#connect-to-your-cluser" title="Permalink to this headline">¶</a></h2>
+<p>From your terminal, connect to your cluser. You can also do this through the Google
+‘web console’ interface if you prefer.</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>gcloud container clusters get-credentials &lt;cluster-name&gt; --zone europe-north1-a --project &lt;project-name&gt;
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="deploy-obpapi-to-google-kubernetes">
+<h2>3. Deploy OBPAPI to Google Kubernetes<a class="headerlink" href="#deploy-obpapi-to-google-kubernetes" title="Permalink to this headline">¶</a></h2>
+<p>Deploy the <cite>obpapi_k8s.yaml</cite> to your cluster. Kubernetes will read this and deploy the objects within
+the document.</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>kubectl apply -f obpapi_k8s.yaml
+</pre></div>
+</td></tr></table></div>
+<p>Useful commands to see progress:</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span>kubectl get pods
+kubectl logs -f &lt;pod-name&gt;
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="patching-the-reclaim-policy-to-retain">
+<h2>4. Patching the reclaim policy to <cite>Retain</cite><a class="headerlink" href="#patching-the-reclaim-policy-to-retain" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://kubernetes.io/docs/tasks/administer-cluster/change-pv-reclaim-policy/">https://kubernetes.io/docs/tasks/administer-cluster/change-pv-reclaim-policy/</a></p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span>kubectl get pv
+kubectl patch pv &lt;your-pv-name&gt; -p <span class="s1">&#39;{&quot;spec&quot;:{&quot;persistentVolumeReclaimPolicy&quot;:&quot;Retain&quot;}}&#39;</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="access-the-dashboard">
+<h2>5. Access the Dashboard<a class="headerlink" href="#access-the-dashboard" title="Permalink to this headline">¶</a></h2>
+<p>If you like, you can view the pretty dashboard showing the deployment load, progess etc:</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre><span></span>kubectl create clusterrolebinding kubernetes-dashboard --clusterrole<span class="o">=</span>cluster-admin --serviceaccount<span class="o">=</span>kube-system:kubernetes-dashboard
+
+kubectl proxy
+</pre></div>
+</td></tr></table></div>
+<p>You can now view the dashboard at: <a class="reference external" href="http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview">http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview</a>?namespace=default</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Open Bank Project K8s</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Open Bank Project.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/google-cloud-deployment.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
