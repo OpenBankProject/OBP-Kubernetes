@@ -196,11 +196,6 @@ kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
 kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/00-crds.yaml
 ```
 
-# TODO
-
- See https://github.com/chrisjsimpson/obp-kubernetes/projects
-
-
 ## Docker only Build
 If you just want run Open Bank project locally on your machine quickly, you can use this docker image
 rather than pulling from docker hub (e.g. you're offline).
