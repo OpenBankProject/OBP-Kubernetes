@@ -14,7 +14,7 @@ Otherwise, use a kubernetes provider (Google Cloud, OpenShift etc)
 #### Without kafka
 
     # Deploy open bank project
-    kubectl apply -f obpapi_k8s.yaml
+    kubectl kustomize base/ | kubectl apply -f - #pipe from stdin
     # Output: 
     service/obpapi-service created
     deployment.apps/obp-deployment created
@@ -143,11 +143,11 @@ gcloud container clusters get-credentials <cluster-name> --zone europe-north1-a 
 
 ## 3. Deploy OBPAPI to Google Kubernetes
 
-Deploy the `obpapi_k8s.yaml` to your cluster. Kubernetes will read this and deploy the objects within
+Deploy the manifests to your cluster. Kubernetes will read this and deploy the objects within
 the document.
 
 ```
-kubectl apply -f obpapi_k8s.yaml
+kubectl kustomize base/ | kubectl apply -f - #pipe from stdin
 ```
 
 Useful commands to see progress:
