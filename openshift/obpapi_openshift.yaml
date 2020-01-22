@@ -61,19 +61,17 @@ objects:
               spec:
                   containers:
                   - name: obpapi
-                    image: chrisjsimpson/obpapi-kube:latest # docker build -t obpapi-kube .
+                    image: tawoe/obp-api:latest # docker build -t obpapi-kube .
                     resources:
-                      limits:
-                        memory: "800Mi"
                       requests:
                         memory: "600Mi"
                     env:
-                      - name: DB_DRIVER
+                      - name: OBP_DB_DRIVER
                         valueFrom: 
                           secretKeyRef: 
                            name: postgres-credentials
                            key: jdbc_driver
-                      - name: DB_URL
+                      - name: OBP_DB_URL
                         valueFrom: 
                           secretKeyRef: 
                            name: postgres-credentials
@@ -114,8 +112,6 @@ objects:
                   - name: postgres
                     image: centos/postgresql-10-centos7
                     resources:
-                      limits:
-                          memory: "512Mi"
                       requests:
                           memory: "200Mi"
                     env: 
