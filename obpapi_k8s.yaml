@@ -35,10 +35,6 @@ spec:
       protocol: TCP
       port: 80
       targetPort: 8080
-    - name: postgres
-      protocol: TCP
-      port: 5432
-      targetPort: 5432
     type: LoadBalancer
 ---
 apiVersion: apps/v1
@@ -59,17 +55,17 @@ spec:
         spec:
             containers:
             - name: obpapi
-              image: chrisjsimpson/obpapi-kube # docker build -t obpapi-kube .
+              image: openbankproject/obp-api # docker build -t obpapi-kube .
               resources:
                 requests:
-                  memory: "126Mi"
+                  memory: "1200Mi"
               env:
-                - name: DB_DRIVER
+                - name: OBP_DB_DRIVER
                   valueFrom: 
                     secretKeyRef: 
                      name: postgres-credentials
                      key: jdbc_driver
-                - name: DB_URL
+                - name: OBP_DB_URL
                   valueFrom: 
                     secretKeyRef: 
                      name: postgres-credentials
@@ -77,8 +73,6 @@ spec:
               ports:
               - containerPort: 8080
                 name: http
-              - containerPort: 5432
-                name: postgres
 ---
 apiVersion: v1
 kind: Service

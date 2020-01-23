@@ -11,23 +11,6 @@ data:
     jdbc_driver: b3JnLnBvc3RncmVzcWwuRHJpdmVy # org.postgresql.Driver
     jdbc_url: amRiYzpwb3N0Z3Jlc3FsOi8vcG9zdGdyZXMtc2VydmljZTo1NDMyL3Bvc3RncmVzP3VzZXI9cG9zdGdyZXMmcGFzc3dvcmQ9cGFzc3dvcmQ= # jdbc:postgresql://postgres-service:5432/postgres?user=postgres&password=password
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-    name: obp-credentials
-type: Opaque
-data:
-    # Kafa
-    connector: a2Fma2FfdlNlcHQyMDE4 #kafka_vSept2018
-    kafka_bootstrap_hosts: a2Fma2Etc3ZjOjkwOTM= #kafka-svc:9093
-    kafka_partitions: MQ== #1
-    kafka_client_id: b2JwYXBpLXNlcnZpY2U= #obpapi-service
-    api_instance_id: b2JwYXBpLXNlcnZpY2U= #obpapi-service
-    kafka_akka_timeout: Mw== #3
-    remotedata_timeout: Mw== #3
-    # Debug
-    display_internal_errors: dHJ1ZQ== # true
----
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata: 
@@ -52,8 +35,14 @@ spec:
       protocol: TCP
       port: 80
       targetPort: 8080
+    - name: akka
+      protocol: TCP
+      port: 2554
+      targetPort: 2554
     type: LoadBalancer
+
 ---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -75,7 +64,7 @@ spec:
               image: openbankproject/obpapi-kube # docker build -t obpapi-kube .
               resources:
                 requests:
-                  memory: "126Mi"
+                  memory: "1200Mi"
               env:
                 - name: OBP_DB_DRIVER
                   valueFrom: 
@@ -87,50 +76,64 @@ spec:
                     secretKeyRef: 
                      name: postgres-credentials
                      key: jdbc_url
-                - name: OBP_CONNECTOR
-                  valueFrom:
-                    secretKeyRef:
-                      name: obp-credentials
-                      key: connector
-                - name: OBP_KAFKA_BOOTSTRAP_HOSTS
-                  valueFrom:
-                    secretKeyRef:
-                      name: obp-credentials
-                      key: kafka_bootstrap_hosts
-                - name: OBP_KAFKA_PARTITIONS
-                  valueFrom:
-                    secretKeyRef:
-                      name: obp-credentials
-                      key: kafka_partitions
-                - name: OBP_KAFKA_CLIENT_ID
-                  valueFrom:
-                    secretKeyRef:
-                      name: obp-credentials
-                      key: kafka_client_id
-                - name: OBP_API_INSTANCE_ID
-                  valueFrom:
-                    secretKeyRef:
-                      name: obp-credentials
-                      key: api_instance_id
-                - name: OBP_KAFKA_AKKA_TIMEOUT
-                  valueFrom:
-                    secretKeyRef:
-                      name: obp-credentials
-                      key: kafka_akka_timeout
-                - name: OBP_REMOTEDATA_TIMEOUT
-                  valueFrom:
-                    secretKeyRef:
-                      name: obp-credentials
-                      key: remotedata_timeout
-                - name: OBP_DISPLAY_INTERNAL_ERRORS
-                  valueFrom:
-                    secretKeyRef:
-                      name: obp-credentials
-                      key: display_internal_errors
               ports:
               - containerPort: 8080
                 name: http
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: obpapi-remote
+spec:
+  selector:
+    app: obpapi
+  ports:
+    - name: akka
+      protocol: TCP
+      port: 2554
+      targetPort: 2554
+  type: LoadBalancer
+---
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: obp-remote-deployment
+  labels:
+    app: obpapi-remote
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: obpapi-remote
+  template:
+    metadata:
+      labels:
+        app: obpapi-remote
+    spec:
+      containers:
+        - name: obpapi-remote
+          image: chrisjsimpson/obpapi-kube # docker build -t obpapi-kube .
+          resources:
+            requests:
+              memory: "1200Mi"
+          env:
+            - name: OBP_DB_DRIVER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: jdbc_driver
+            - name: OBP_DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: jdbc_url
+          ports:
+            - containerPort: 8080
+              name: http
+---
+
 apiVersion: v1
 kind: Service
 metadata:
