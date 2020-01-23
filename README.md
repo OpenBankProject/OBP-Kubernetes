@@ -14,7 +14,7 @@ Otherwise, use a kubernetes provider (Google Cloud, OpenShift etc)
 #### Without kafka
 
     # Deploy open bank project
-    kubectl apply -f obpapi_k8s.yaml
+    kubectl kustomize base/ | kubectl apply -f - #pipe from stdin
     # Output: 
     service/obpapi-service created
     deployment.apps/obp-deployment created
@@ -143,11 +143,11 @@ gcloud container clusters get-credentials <cluster-name> --zone europe-north1-a 
 
 ## 3. Deploy OBPAPI to Google Kubernetes
 
-Deploy the `obpapi_k8s.yaml` to your cluster. Kubernetes will read this and deploy the objects within
+Deploy the manifests to your cluster. Kubernetes will read this and deploy the objects within
 the document.
 
 ```
-kubectl apply -f obpapi_k8s.yaml
+kubectl kustomize base/ | kubectl apply -f - #pipe from stdin
 ```
 
 Useful commands to see progress:
@@ -195,11 +195,6 @@ kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
 # Install the CustomResourceDefinition resources
 kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/00-crds.yaml
 ```
-
-# TODO
-
- See https://github.com/chrisjsimpson/obp-kubernetes/projects
-
 
 ## Docker only Build
 If you just want run Open Bank project locally on your machine quickly, you can use this docker image

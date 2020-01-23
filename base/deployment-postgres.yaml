@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: postgres
+    labels:
+        app: postgres
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: postgres
+    template:
+        metadata:
+            labels:
+                app: postgres
+        spec:
+            containers:
+            - name: postgres
+              image: postgres:11.1-alpine
+              resources:
+                requests:
+                    memory: "200Mi"
+              env:
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                     name: postgres-credentials
+                     key: postgres_user
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                     name: postgres-credentials
+                     key: postgres_password
+                - name: POSTGRES_DB
+                  valueFrom:
+                    secretKeyRef:
+                     name: postgres-credentials
+                     key: postgres_db_name
+                - name: PGDATA
+                  valueFrom:
+                    secretKeyRef:
+                     name: postgres-credentials
+                     key: postgres_data
+              volumeMounts:
+              - name: postgres-volume
+                mountPath: "/var/lib/postgresql/data"
+              ports:
+              - containerPort: 5432
+            volumes:
+                - name: postgres-volume
+                  persistentVolumeClaim:
+                    claimName: postgres-volume-claim
