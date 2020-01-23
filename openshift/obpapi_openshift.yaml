@@ -38,10 +38,6 @@ objects:
             protocol: TCP
             port: 80
             targetPort: 8080
-          - name: postgres
-            protocol: TCP
-            port: 5432
-            targetPort: 5432
           type: LoadBalancer
     - kind: Deployment
       apiVersion: apps/v1
@@ -61,7 +57,7 @@ objects:
               spec:
                   containers:
                   - name: obpapi
-                    image: tawoe/obp-api:latest # docker build -t obpapi-kube .
+                    image: openbankproject/obp-api # docker build -t obpapi-kube .
                     resources:
                       requests:
                         memory: "600Mi"
