@@ -60,7 +60,7 @@ objects:
                     image: openbankproject/obp-api # docker build -t obpapi-kube .
                     resources:
                       requests:
-                        memory: "600Mi"
+                        memory: "1200Mi"
                     env:
                       - name: OBP_DB_DRIVER
                         valueFrom: 
@@ -75,8 +75,6 @@ objects:
                     ports:
                     - containerPort: 8080
                       name: http
-                    - containerPort: 5432
-                      name: postgres
     - kind: Service
       apiVersion: v1
       metadata:
