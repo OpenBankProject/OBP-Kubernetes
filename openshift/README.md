@@ -1,10 +1,10 @@
 # Minishift set-up (rebranded minikube)
 
+- Install minishift (https://docs.okd.io/latest/minishift/getting-started/index.html)
 
-- Install virtualbox (or kvm)
 
 ```
-minikube start
+minishift start
 ```
 
 
@@ -34,6 +34,15 @@ Now run the template as a new app:
 ```
 oc new-app obp-api-example # App name comes from the template name in yaml file. 
 ```
+
+Add a route for the service:
+``` 
+
+oc expose svc/obpapi-service
+```
+
+See if it works:
+
 
 ### Seed the sandbox: Deploy a bootstrap pod
 
