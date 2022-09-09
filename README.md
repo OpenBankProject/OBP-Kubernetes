@@ -1,5 +1,11 @@
 # Kubernetes Build (local development)
 
+
+## Target environments
+
+- [Openshift](openshift)
+- Kubernetes (see below)
+
 For running locally, install https://microk8s.io/docs/.
 Otherwise, use a kubernetes provider (Google Cloud, OpenShift etc)
 
