@@ -1,3 +1,7 @@
+# This repository is deprecated, please use https://github.com/OpenBankProject/OBP-Charts instead.
+
+================
+
 # Kubernetes Build (local development)
 
 For running locally, install https://microk8s.io/docs/.
